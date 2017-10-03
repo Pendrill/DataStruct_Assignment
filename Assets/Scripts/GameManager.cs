@@ -4,11 +4,13 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour {
     public static GameManager instance = new GameManager();
-    string[] suit = { "heart", "diamond", "spade", "clover" };
+    string[] suit = { "clover", "diamond", "heart", "spade" };
     string[] face = { "Jack", "Queen", "King" };
     int[] number = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14 };
     Card[] cardReference = new Card[52];
-
+    public GameObject physicalCard;
+    public Material[] cardMaterial = new Material[52];
+    public Material cardBack;
     public Dictionary<int, string> cardSuits = new Dictionary<int, string>();
     public Dictionary<int, string> cardFace = new Dictionary<int, string>();
     // Use this for initialization
@@ -40,11 +42,13 @@ public class GameManager : MonoBehaviour {
     /// </summary>
     void createAllCards()
     {
+        int counter = 0;
         for (int i = 0; i < 13; i++)
         {
             for(int j = 0; j < 4; j++)
             {
-                cardReference[i + (j * 13)] = new Card(number[i], j);
+                cardReference[i + (j * 13)] = new Card(number[i], j, counter);
+                counter++;
             }
         }
     }
