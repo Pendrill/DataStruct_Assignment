@@ -24,7 +24,8 @@ public class GameManager : MonoBehaviour {
         currentPlayerPosition, currentAIPosition;
     public int playerValue = 0, AIValue = 0;
     bool playerHasAce = false, AIHasAce = false, playerWins = false;
-
+    public Button HitMe,Stay, Exit, Restart;
+    public Text gameOverText;
     // Use this for initialization
     void Start () {
         instance = this;
@@ -59,6 +60,8 @@ public class GameManager : MonoBehaviour {
 
                 break;
             case GameState.start:
+                HitMe.gameObject.SetActive(false);
+                Stay.gameObject.SetActive(false);
                 Card tempPlayerCard1 = (Card)Deck.Dequeue();
                 Card tempAICard1 = (Card)Deck.Dequeue();
                 Card tempPlayerCard2 = (Card)Deck.Dequeue();
@@ -72,19 +75,43 @@ public class GameManager : MonoBehaviour {
                 break;
 
             case GameState.PlayerAction:
-                
+                HitMe.gameObject.SetActive(true);
+                Stay.gameObject.SetActive(true);
                 
                 setCurrentState(GameState.wait);
                 
                 break;
             case GameState.AIAction:
+                HitMe.gameObject.SetActive(false);
+                Stay.gameObject.SetActive(false);
+                if (getStateElapsed() > 0.5f && AIValue < playerValue)
+                {
+                    AIHit();
+                    lastStateChange = Time.time;
 
+                }
+                updateValue();
+                if(AIValue >= playerValue && currentState != GameState.GameOver)
+                {
+                    playerWins = false;
+                    setCurrentState(GameState.GameOver);
+                }
                 break;
             case GameState.GameOver:
-
+                HitMe.gameObject.SetActive(false);
+                Stay.gameObject.SetActive(false);
+                if (!playerWins)
+                {
+                    gameOverText.text = "YOU LOSE: " + playerValue + " VS. " + AIValue;
+                }else
+                {
+                    gameOverText.text = "YOU WIN: " + playerValue + " VS. " + AIValue;
+                }
+                Exit.gameObject.SetActive(true);
+                Restart.gameObject.SetActive(true);
                 break;
             case GameState.Restart:
-
+                restart();
                 break;
             
         }
@@ -100,12 +127,34 @@ public class GameManager : MonoBehaviour {
         {
             playerHand[playerHand.Count - 1].value = 11;
             playerValue += playerHand[playerHand.Count - 1].value;
+            playerHasAce = true;
         }
         else
         {
             playerValue += playerHand[playerHand.Count - 1].value;
         }
         currentPlayerPosition.x -= 5;
+    }
+    public void stay()
+    {
+        setCurrentState(GameState.AIAction);
+    }
+    public void AIHit()
+    {
+        Card tempAICard1 = (Card)Deck.Dequeue();
+        AIHand.Add(tempAICard1);
+        AIHand[AIHand.Count - 1].physicalCard = Instantiate(physicalCard, currentAIPosition, physicalCard.transform.rotation);
+        if (AIHand[AIHand.Count - 1].value == 1)
+        {
+            AIHand[AIHand.Count - 1].value = 11;
+            AIValue += AIHand[AIHand.Count - 1].value;
+            AIHasAce = true;
+        }
+        else
+        {
+            AIValue += AIHand[AIHand.Count - 1].value;
+        }
+        currentAIPosition.x += 5;
     }
 
     /// <summary>
@@ -161,7 +210,7 @@ public class GameManager : MonoBehaviour {
     void updateValue()
     {
         playerValue = 0;
-        AIValue = 0;
+        
         for(int i = 0; i< playerHand.Count; i++)
         {
             playerValue += playerHand[i].value;
@@ -192,6 +241,7 @@ public class GameManager : MonoBehaviour {
                 return;
             }
         }
+        AIValue = 0;
         for (int i = 0; i < AIHand.Count; i++)
         {
             AIValue += AIHand[i].value;
@@ -223,6 +273,8 @@ public class GameManager : MonoBehaviour {
                 return;
             }
         }
+
+
     }
 
     void DealCards()
@@ -297,5 +349,51 @@ public class GameManager : MonoBehaviour {
             Card tempCard = (Card) Deck.Dequeue();
             Debug.Log(tempCard.name);
         }
+    }
+    public void Quit()
+    {
+        Application.Quit();
+    }
+    public void restartButton()
+    {
+        setCurrentState(GameState.Restart);
+    }
+    void restart()
+    {
+        Deck.Clear();
+        for(int i = 0; i < playerHand.Count; i++)
+        {
+            if(playerHand[i].value == 11)
+            {
+                playerHand[i].value = 1;
+            }
+            Destroy(playerHand[i].physicalCard);
+        }
+        playerHand.Clear();
+        for (int i = 0; i < AIHand.Count; i++)
+        {
+            if (AIHand[i].value == 11)
+            {
+                AIHand[i].value = 1;
+            }
+            Destroy(AIHand[i].physicalCard);
+        }
+        AIHand.Clear();
+        Restart.gameObject.SetActive(false);
+        Exit.gameObject.SetActive(false);
+        gameOverText.text = "";
+        playerValue = 0;
+        AIValue = 0;
+        playerWins = false;
+        playerHasAce = false;
+        AIHasAce = false;
+        currentPlayerPosition = playerCardStartingPosition;
+        currentAIPosition = AICardStartingPosition;
+        for(int i = 0; i < cardReference.Length; i++)
+        {
+            cardReference[i].inDeck = false;
+        }
+        shuffleCards();
+        setCurrentState(GameState.start);
     }
 }
