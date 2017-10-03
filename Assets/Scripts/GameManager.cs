@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour {
     public Material cardBack;
     public Dictionary<int, string> cardSuits = new Dictionary<int, string>();
     public Dictionary<int, string> cardFace = new Dictionary<int, string>();
+    public Queue Deck = new Queue();
     // Use this for initialization
     void Start () {
         instance = this;
@@ -29,7 +30,9 @@ public class GameManager : MonoBehaviour {
             
         }
         createAllCards();
-        debugCard();
+        shuffleCards();
+        //debugCard();
+        debugDeck();
 	}
 	
 	// Update is called once per frame
@@ -52,12 +55,61 @@ public class GameManager : MonoBehaviour {
             }
         }
     }
+    void shuffleCards()
+    {
+        int counter = 0;
+        while(counter < 52)
+        {
+            int randInt = Random.Range(0, 52);
+            if (!cardReference[randInt].inDeck)
+            {
+                Deck.Enqueue(cardReference[randInt]);
+                cardReference[randInt].inDeck = true;
+                counter++;
+            }else
+            {
+                bool temp = true;
+                while (temp)
+                {
+                    if(randInt == 51)
+                    {
+                        randInt = 0;
+                    }else
+                    {
+                        randInt += 1;
+                    }
+                    if (!cardReference[randInt].inDeck)
+                    {
+                        Deck.Enqueue(cardReference[randInt]);
+                        cardReference[randInt].inDeck = true;
+                        counter++;
+                        temp = false;
+                    }
+                }
+            }
+        }
+    }
 
+    /// <summary>
+    /// Debug to check that the cards were created and added to the array properly
+    /// </summary>
     void debugCard()
     {
         for(int i = 0; i<cardReference.Length; i++)
         {
             Debug.Log(cardReference[i].name + "\t" + cardReference[i].value);
+        }
+    }
+
+    /// <summary>
+    /// Debug to check that the cards were shuffled properly
+    /// </summary>
+    void debugDeck()
+    {
+        for (int i = 0; i < cardReference.Length; i++)
+        {
+            Card tempCard = (Card) Deck.Dequeue();
+            Debug.Log(tempCard.name);
         }
     }
 }

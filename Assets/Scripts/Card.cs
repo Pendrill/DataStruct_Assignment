@@ -54,6 +54,17 @@ public class Card {
             return p_value;
         }
     }
+    public bool inDeck
+    {
+        get
+        {
+            return p_inDeck;
+        }
+        set
+        {
+            this.p_inDeck = value;
+        }
+    }
 	
 
 
