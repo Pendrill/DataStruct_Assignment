@@ -35,8 +35,8 @@ public class Card {
             p_value = 10;
         }
         p_frontMat = GameManager.instance.cardMaterial[counter];
-        p_physicalCard = GameObject.Instantiate(GameManager.instance.physicalCard, new Vector3(0, 0, 0), Quaternion.identity);
-        p_physicalCard.GetComponent<MeshRenderer>().material = p_frontMat;
+        //p_physicalCard = GameObject.Instantiate(GameManager.instance.physicalCard, new Vector3(0, 0, 0), GameManager.instance.physicalCard.transform.rotation);
+        //p_physicalCard.GetComponent<MeshRenderer>().material = p_frontMat;
     }
 
     public string name
@@ -53,6 +53,10 @@ public class Card {
         {
             return p_value;
         }
+        set
+        {
+            this.p_value = value;
+        }
     }
     public bool inDeck
     {
@@ -63,6 +67,31 @@ public class Card {
         set
         {
             this.p_inDeck = value;
+        }
+    }
+
+    public GameObject physicalCard
+    {
+        get
+        {
+            return p_physicalCard;
+        }
+        set
+        {
+            this.p_physicalCard = value;
+            p_physicalCard.GetComponent<MeshRenderer>().material = p_frontMat;
+        }
+    }
+    public Material frontMat
+    {
+        get
+        {
+            return p_frontMat;
+        }
+        set
+        {
+            this.p_frontMat = value;
+            
         }
     }
 	
